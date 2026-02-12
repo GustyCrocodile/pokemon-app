@@ -1,0 +1,24 @@
+
+services:
+    php:
+        # ports:
+        #     - 80:80
+        volumes:
+            - .:/var/www/html
+            - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+        image: php:8.5.2-apache
+    
+    db:
+        image: postgres:latest
+        restart: always
+        environment:
+            POSTGRES_DB: app
+            POSTGRES_USER: pokemon
+            POSTGRES_PASSWORD: pokemon
+        # ports:
+        #     - "5432:5432"
+        volumes:
+            - db_data:/var/lib/postgresql/18/docker
+
+volumes:
+    db_data:
