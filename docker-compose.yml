@@ -3,10 +3,12 @@ services:
     php:
         # ports:
         #     - 80:80
+        restart: unless-stopped
         volumes:
             - .:/var/www/html
             - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
-        image: php:8.5.2-apache
+        build: ./docker/php
+
     
     db:
         image: postgres:latest
