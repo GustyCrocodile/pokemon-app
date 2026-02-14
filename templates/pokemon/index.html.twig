@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pokemon List{% endblock %}
+
+{% block body %}
+
+<main>
+    <h1>Pokemons</h1>
+
+    {% for poke in pokemon %}
+        <article>
+            <aside>
+                <figure>
+                    <img src="{{ poke.image }}" alt="{{ poke.name }}">
+                </figure>
+            </aside>
+
+            <header>
+                <h3>{{ poke.name|title }}</h3>
+            </header>
+            
+            <hr>
+
+            <footer style="padding-bottom: 10px;">
+                <p>
+                    <a href="{{ path('pokemon_show', {name: poke.name}) }}">View Details</a>
+                </p>
+            </footer>
+        </article>
+
+    {% endfor %}
+
+</main>
+
+{% endblock %}
