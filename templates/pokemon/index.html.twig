@@ -4,8 +4,29 @@
 
 {% block body %}
 
-<main>
-    <h1>Pokemons</h1>
+    
+    {% if searchName|default('') or selectedTypes|default([])|length > 0 %}
+        <p>
+            <strong>Search Results:</strong>
+
+            {% if searchName %}
+                Name: "{{ searchName }}"
+            {% endif %}
+
+            {% if selectedTypes|default([])|length > 0 %}
+                {% if searchName %} | {% endif %}
+                Types: {{ selectedTypes|join(', ')|title }}
+            {% endif %}
+        </p>
+    {% endif %}
+
+    {% for message in app.flashes('warning') %}
+        <p class="notice">{{ message }}</p>
+    {% endfor %}
+
+
+    <p>( {{ count }} Pokémon found )</p>
+    <hr>
 
     {% for poke in pokemon %}
         <article>
@@ -29,7 +50,5 @@
         </article>
 
     {% endfor %}
-
-</main>
 
 {% endblock %}

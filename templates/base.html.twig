@@ -12,6 +12,41 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+        <header>
+            <nav>
+                <a href="/" class="{{ app.current_route == 'pokemon_index' ? 'current' : '' }}">Pokemon</a>
+                <a href="/" class="{{ app.current_route == 'favorites' ? 'current' : '' }}">Favourites</a>
+            </nav>
+
+            <h1>Pokemon Search App</h1>
+        </header>
+
+        <main>
+            <form action="{{ path('pokemon_search') }}" method="GET">
+                <div style="display: flex; gap: 0.5rem; width: 100%;">
+                    <input required type="text" name="name" placeholder="Search Pokemon..." value="{{ searchName|default('') }}" style="flex: 1;">
+                    <button type="submit">Search</button>
+                </div>
+
+                <details>
+                    <summary>Filter by Type</summary>
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                        {% for type in types %}
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="types[]"
+                                    value="{{ type.name }}"
+                                    {% if type.name in selectedTypes|default([]) %} checked {% endif %}
+                                >
+                                {{ type.name|title }}
+                            </label>
+                        {% endfor %}
+                    </div>                    
+                </details>
+            </form>
+
+            {% block body %}{% endblock %}
+        </main>
     </body>
 </html>

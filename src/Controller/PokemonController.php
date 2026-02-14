@@ -2,102 +2,68 @@
 
 namespace App\Controller;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use App\Service\PokeApiClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class PokemonController extends AbstractController
 {
+    public function __construct(
+        private PokeApiClient $pokeApiClient
+    ) {
+    }
+
     #[Route('/', name: 'pokemon_index')]
-    public function index(HttpClientInterface $httpClient): Response
+    public function index(): Response
     {
-        $types = $httpClient->request(
-            'GET',
-            'https://pokeapi.co/api/v2/type',
-        )->toArray();
-
-        // Get pokemon list
-        $pokemonList = $httpClient->request(
-            'GET',
-            'https://pokeapi.co/api/v2/pokemon?limit=20',
-        )->toArray();
-
-        // get sprites pokemon
-        $pokemonData = [];
-        foreach ($pokemonList['results'] as $pokemon) {
-            $details = $httpClient->request('GET', $pokemon['url'])->toArray();
-            $pokemonData[] = [
-                'name' => $details['name'],
-                'image' => $details['sprites']['other']['official-artwork']['front_default'] ?? null,
-                'id' => $details['id']
-            ];
-        }
+        $types = $this->pokeApiClient->getTypes();
+        $pokemonData = $this->pokeApiClient->getPokemonListWithSprites(20);
 
         return $this->render('pokemon/index.html.twig', [
-            'types' => $types,
-            'pokemon' => $pokemonData
+            'types' => $types['results'],
+            'pokemon' => $pokemonData,
+            'count' => count($pokemonData)
         ]);
     }
 
-    #[Route('/{name}', name: 'pokemon_show')]
-    public function show(HttpClientInterface $httpClient, string $name): Response
+    #[Route('/pokemon/{name}', name: 'pokemon_show')]
+    public function show(string $name): Response
     {
-        $details = $httpClient->request(
-            'GET',
-            'https://pokeapi.co/api/v2/pokemon/' . $name,
-        )->toArray();
+        $types = $this->pokeApiClient->getTypes();
+        $pokeData = $this->pokeApiClient->getPokemonDetails($name);
 
-        $abilities = [];
-        foreach ($details['abilities'] as $ability) {
-            $abilityApiResponse = $httpClient->request(
-                'GET',
-                $ability['ability']['url'],
-            )->toArray();
+        return $this->render('pokemon/show.html.twig', [
+            'poke' => $pokeData,
+            'types' => $types['results'],
+        ]);
+    }
 
+    #[Route('/search', name: 'pokemon_search')]
+    public function search(Request $request): Response
+    {
+        $name = $request->query->get('name', '');
+        $selectedTypes = $request->query->all('types') ?? [];
 
-            $abilities[] = [
-                'name' => $abilityApiResponse['names'][7]['name'],
-                'shortEffect' => $abilityApiResponse['effect_entries'][2]['short_effect'],
-            ];
-        }
-        
-        $flavorTextResponse = $httpClient->request(
-            'GET',
-            'https://pokeapi.co/api/v2/pokemon-species/' . $name,
-        )->toArray()['flavor_text_entries'];
+        $types = $this->pokeApiClient->getTypes();
 
-        $englishFlavorText = null;
+        // search
+        $pokemon = [];
+        if ($name || !empty($selectedTypes)) {
+            $pokemon = $this->pokeApiClient->searchPokemon($name ?: null, $selectedTypes);
 
-        foreach ($flavorTextResponse as $index => $entry) {
-            if ($entry['language']['name'] === 'en') {
-                $englishFlavorText = $entry['flavor_text'];
-                break;
+            if (empty($pokemon)) {
+                $this->addFlash('warning', 'No Pokémon found matching your search criteria.');
             }
         }
 
-        $flavorText = trim(preg_replace('/\s+/', ' ', str_replace(["\n", "\f", "\r"], ' ', $englishFlavorText)));
-
-        $pokeTypes = [];
-        foreach ($details['types'] as $type) {
-            $pokeTypes[] = [
-                'slot' => $type['slot'],
-                'name' => $type['type']['name'],
-                'id' => explode("/", parse_url($type['type']['url'])['path'])[4]
-            ];
-        }
-
-        $pokeData = [
-            'name' => $details['name'],
-            'image' => $details['sprites']['other']['official-artwork']['front_default'] ?? null,
-            'id' => $details['id'],
-            'types' => $pokeTypes,
-            'flavorText' => $flavorText,
-            'abilities' => $abilities 
-        ];
-    
-        return $this->render('pokemon/show.html.twig', [
-            'poke' => $pokeData,
+        return $this->render('pokemon/index.html.twig', [
+            'types' => $types['results'],
+            'pokemon' => $pokemon,
+            'count' => count($pokemon),
+            'searchName' => $name,
+            'selectedTypes' => $selectedTypes
         ]);
     }
 }

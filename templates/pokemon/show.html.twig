@@ -3,14 +3,14 @@
 {% block title %}{% endblock %}
 
 {% block body %}
-    <article>
+    <article style="margin-top: 20px;">
          
         <figure>
             <img width="50%" src="{{ poke.image }}" alt="{{ poke.name }}">
         </figure>
         
 
-        <h1 style="text-transform: capitalize;">{{ poke.name }}</h1>
+        <h1>{{ poke.name|title }}</h1>
         <p>
             {{ poke.flavorText }}
         </p>
