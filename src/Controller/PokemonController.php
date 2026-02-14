@@ -17,15 +17,13 @@ final class PokemonController extends AbstractController
             'https://pokeapi.co/api/v2/type',
         )->toArray();
 
-        // dd( $types );
-
-        // Get list of pokemon
+        // Get pokemon list
         $pokemonList = $httpClient->request(
             'GET',
             'https://pokeapi.co/api/v2/pokemon?limit=20',
         )->toArray();
 
-        // Fetch detailed data for each pokemon to get sprites
+        // get sprites pokemon
         $pokemonData = [];
         foreach ($pokemonList['results'] as $pokemon) {
             $details = $httpClient->request('GET', $pokemon['url'])->toArray();
@@ -45,16 +43,61 @@ final class PokemonController extends AbstractController
     #[Route('/{name}', name: 'pokemon_show')]
     public function show(HttpClientInterface $httpClient, string $name): Response
     {
-
         $details = $httpClient->request(
             'GET',
             'https://pokeapi.co/api/v2/pokemon/' . $name,
-        )->getContent();
+        )->toArray();
 
-        dd($details);
+        $abilities = [];
+        foreach ($details['abilities'] as $ability) {
+            $abilityApiResponse = $httpClient->request(
+                'GET',
+                $ability['ability']['url'],
+            )->toArray();
 
+
+            $abilities[] = [
+                'name' => $abilityApiResponse['names'][7]['name'],
+                'shortEffect' => $abilityApiResponse['effect_entries'][2]['short_effect'],
+            ];
+        }
+        
+        $flavorTextResponse = $httpClient->request(
+            'GET',
+            'https://pokeapi.co/api/v2/pokemon-species/' . $name,
+        )->toArray()['flavor_text_entries'];
+
+        $englishFlavorText = null;
+
+        foreach ($flavorTextResponse as $index => $entry) {
+            if ($entry['language']['name'] === 'en') {
+                $englishFlavorText = $entry['flavor_text'];
+                break;
+            }
+        }
+
+        $flavorText = trim(preg_replace('/\s+/', ' ', str_replace(["\n", "\f", "\r"], ' ', $englishFlavorText)));
+
+        $pokeTypes = [];
+        foreach ($details['types'] as $type) {
+            $pokeTypes[] = [
+                'slot' => $type['slot'],
+                'name' => $type['type']['name'],
+                'id' => explode("/", parse_url($type['type']['url'])['path'])[4]
+            ];
+        }
+
+        $pokeData = [
+            'name' => $details['name'],
+            'image' => $details['sprites']['other']['official-artwork']['front_default'] ?? null,
+            'id' => $details['id'],
+            'types' => $pokeTypes,
+            'flavorText' => $flavorText,
+            'abilities' => $abilities 
+        ];
+    
         return $this->render('pokemon/show.html.twig', [
-            'details' => $details,
+            'poke' => $pokeData,
         ]);
     }
 }

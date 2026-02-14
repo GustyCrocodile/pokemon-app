@@ -3,7 +3,41 @@
 {% block title %}{% endblock %}
 
 {% block body %}
+    <article>
+         
+        <figure>
+            <img width="50%" src="{{ poke.image }}" alt="{{ poke.name }}">
+        </figure>
+        
 
+        <h1 style="text-transform: capitalize;">{{ poke.name }}</h1>
+        <p>
+            {{ poke.flavorText }}
+        </p>
+        <p>
+            {% for type in poke.types %}
+                <input type="submit" value="{{ type.name }}">
+            {% endfor %}
+        </p>
+        <dl>
+            <dt>Pokédex №</dt>
+            <dd>#{{ poke.id }}</dd>
+            <dt>Abilities</dt>
+            <dd>
+                <ul>
+                    {% for ability in poke.abilities %}
+                        <li>{{ ability.name }}</li>
+                        <ul>
+                            <li>
+                                {{ ability.shortEffect }}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+            </dd>
+        </dl>
+    </article>
+    <!-- <a href="{{ path('pokemon_index') }}">[Back]</a> -->
 
 
 {% endblock %}
