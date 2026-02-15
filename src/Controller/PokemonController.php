@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Favorite;
 use App\Service\PokeApiClient;
 use App\Service\PokeCacheService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class PokemonController extends AbstractController
@@ -54,14 +57,24 @@ final class PokemonController extends AbstractController
     }
 
     #[Route('/pokemon/{name}', name: 'pokemon_show')]
-    public function show(string $name): Response
+    public function show(string $name, EntityManagerInterface $entityManager, SessionInterface $session): Response
     {
         $types = $this->pokeApiClient->getTypes();
         $pokeData = $this->pokeApiClient->getPokemonDetails($name);
 
+        // Check if Pokemon is already favorited
+        $sessionId = $session->getId();
+        
+        $favorite = $entityManager->getRepository(Favorite::class)->findOneBy([
+            'sessionId' => $sessionId,
+            'pokemonName' => $name
+        ]);
+
         return $this->render('pokemon/show.html.twig', [
             'poke' => $pokeData,
             'types' => $types['results'],
+            'isFavorited' => $favorite !== null,
+            'favoriteId' => $favorite?->getId(),
         ]);
     }
 

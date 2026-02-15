@@ -93,9 +93,7 @@
             <p>Page {{ currentPage }} of {{ totalPages }}</p>
             <div style="margin-top: 1em;">
                 <a href="{{ path('pokemon_index', {page: currentPage - 1}) }}" {% if currentPage <= 1 %} aria-disabled="true" {% endif %} class="button">« Previous</a>               
-                {% if currentPage > 1 %}
-                    <span style="margin: 0 1em;">|</span>
-                {% endif %}
+                <span style="margin: 0 1em;">|</span>
                 <a href="{{ path('pokemon_index', {page: currentPage + 1}) }}" {% if currentPage >= totalPages %} aria-disabled="true" {% endif %} class="button">Next »</a>
             </div>
         </div>

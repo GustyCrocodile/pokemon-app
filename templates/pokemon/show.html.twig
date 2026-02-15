@@ -4,7 +4,13 @@
 
 {% block body %}
     <article style="margin-top: 20px;">
-         
+
+         {% if isFavorited %}
+            <a href="{{ path('favorites_remove', {id: favoriteId}) }}" class="button secondary">Unfavorite</a>
+        {% else %}
+            <a href="{{ path('favorites_add', {name: poke.name}) }}" class="button">Favorite</a>
+        {% endif %}
+
         <figure>
             <img width="50%" src="{{ poke.image }}" alt="{{ poke.name }}">
         </figure>

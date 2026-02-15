@@ -14,14 +14,15 @@
     <body>
         <header>
             <nav>
-                <a href="/" class="{{ app.current_route == 'pokemon_index' ? 'current' : '' }}">Pokemon</a>
-                <a href="/" class="{{ app.current_route == 'favorites' ? 'current' : '' }}">Favourites</a>
+                <a href="{{ path('pokemon_index') }}" class="{{ app.current_route == 'pokemon_index' ? 'current' : '' }}">Pokemon</a>
+                <a href="{{ path('favorites') }}" class="{{ app.current_route == 'favorites' ? 'current' : '' }}">Favourites</a>
             </nav>
 
             <h1>Pokemon Search App</h1>
         </header>
 
         <main>
+            {% if app.current_route == 'pokemon_index' %}
             <form action="{{ path('pokemon_search') }}" method="GET">
                 <div style="display: flex; gap: 0.5rem; width: 100%;">
                     <input type="text" name="name" placeholder="Search Pokemon..." value="{{ searchName|default('') }}" style="flex: 1;">
@@ -45,6 +46,7 @@
                     </div>                    
                 </details>
             </form>
+            {% endif %}
 
             {% block body %}{% endblock %}
         </main>
