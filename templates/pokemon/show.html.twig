@@ -16,7 +16,7 @@
         </p>
         <p>
             {% for type in poke.types %}
-                <input type="submit" value="{{ type.name }}">
+                <a href="{{ path('pokemon_search', {'types': [type.name]}) }}">{{ type.name|title }}</a>
             {% endfor %}
         </p>
         <dl>
@@ -37,7 +37,5 @@
             </dd>
         </dl>
     </article>
-    <!-- <a href="{{ path('pokemon_index') }}">[Back]</a> -->
-
 
 {% endblock %}

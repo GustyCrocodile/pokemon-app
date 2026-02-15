@@ -1,0 +1,6 @@
+
+sudo docker exec -it CHANGE_ME /bin/bash (something like pokemon_web-php)
+
+
+
+php bin/console app:cache-pokemon

@@ -24,26 +24,81 @@
         <p class="notice">{{ message }}</p>
     {% endfor %}
 
-
+        
+    {% if app.current_route == 'pokemon_search'  %}
     <p>( {{ count }} Pokémon found )</p>
     <hr>
+    {% endif %}
 
     {% for poke in pokemon %}
         <a href="{{ path('pokemon_show', {name: poke.name}) }}" style="text-decoration: none; color: inherit;">
-            <article style="padding-bottom: 5.5rem;">
+            <article style="padding-bottom: 5.5em;" data-pokemon-url="{{ poke.url }}">
                 <aside>
                     <figure>
-                        <img src="{{ poke.image }}" alt="{{ poke.name }}">
+                        <img class="pokemon-image" data-pokemon-name="{{ poke.name }}" src="" alt="{{ poke.name }}" style="min-height: 5em; background: rgba(0,0,0,0);">
                     </figure>
                 </aside>
 
                 <header>
                     <h3>{{ poke.name|title }}</h3>
                 </header>
-                
+
             </article>
         </a>
 
     {% endfor %}
+
+    <script>
+        // Lazy load Pokemon images
+        function loadPokemonImages() {
+            const articles = document.querySelectorAll('article[data-pokemon-url]');
+
+            articles.forEach(function(article) {
+                const url = article.dataset.pokemonUrl;
+                const img = article.querySelector('.pokemon-image');
+
+                // Skip if image already loaded
+                if (img.src && img.src !== window.location.href) {
+                    return;
+                }
+
+                // Fetch Pokemon data from API
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const imageUrl = data.sprites.other['official-artwork'].front_default;
+                        if (imageUrl) {
+                            img.src = imageUrl;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading Pokemon image:', error);
+                    });
+            });
+        }
+
+        // Load images on initial page load
+        document.addEventListener('DOMContentLoaded', loadPokemonImages);
+
+        // Load images immediately if DOM is already loaded (for navigation)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadPokemonImages);
+        } else {
+            loadPokemonImages();
+        }
+    </script>
+
+    {% if totalPages|default(0) > 1 %}
+        <div style="margin-top: 2em; text-align: center;">
+            <p>Page {{ currentPage }} of {{ totalPages }}</p>
+            <div style="margin-top: 1em;">
+                <a href="{{ path('pokemon_index', {page: currentPage - 1}) }}" {% if currentPage <= 1 %} aria-disabled="true" {% endif %} class="button">« Previous</a>               
+                {% if currentPage > 1 %}
+                    <span style="margin: 0 1em;">|</span>
+                {% endif %}
+                <a href="{{ path('pokemon_index', {page: currentPage + 1}) }}" {% if currentPage >= totalPages %} aria-disabled="true" {% endif %} class="button">Next »</a>
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}

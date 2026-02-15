@@ -24,7 +24,7 @@
         <main>
             <form action="{{ path('pokemon_search') }}" method="GET">
                 <div style="display: flex; gap: 0.5rem; width: 100%;">
-                    <input required type="text" name="name" placeholder="Search Pokemon..." value="{{ searchName|default('') }}" style="flex: 1;">
+                    <input type="text" name="name" placeholder="Search Pokemon..." value="{{ searchName|default('') }}" style="flex: 1;">
                     <button type="submit">Search</button>
                 </div>
 

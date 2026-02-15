@@ -174,7 +174,7 @@ class PokeApiClient
             }
 
             // Fetch details for filtered pokemon (limit to 50 for performance)
-            $filteredPokemon = array_slice($filteredPokemon, 0, 50);
+            $filteredPokemon = array_slice($filteredPokemon, 0, 20);
 
             foreach ($filteredPokemon as $pokemonName) {
                 try {
