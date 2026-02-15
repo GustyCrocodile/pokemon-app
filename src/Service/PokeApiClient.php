@@ -82,9 +82,27 @@ class PokeApiClient
         foreach ($details['abilities'] as $ability) {
             $abilityApiResponse = $this->getAbility($ability['ability']['url']);
 
+            // Find English name
+            $abilityName = $ability['ability']['name'];
+            foreach ($abilityApiResponse['names'] as $nameEntry) {
+                if ($nameEntry['language']['name'] === 'en') {
+                    $abilityName = $nameEntry['name'];
+                    break;
+                }
+            }
+
+            // Find English effect
+            $shortEffect = 'No description available';
+            foreach ($abilityApiResponse['effect_entries'] as $effectEntry) {
+                if ($effectEntry['language']['name'] === 'en') {
+                    $shortEffect = $effectEntry['short_effect'];
+                    break;
+                }
+            }
+
             $abilities[] = [
-                'name' => $abilityApiResponse['names'][7]['name'],
-                'shortEffect' => $abilityApiResponse['effect_entries'][2]['short_effect'],
+                'name' => $abilityName,
+                'shortEffect' => $shortEffect,
             ];
         }
 

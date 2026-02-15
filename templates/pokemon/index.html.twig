@@ -32,10 +32,10 @@
 
     {% for poke in pokemon %}
         <a href="{{ path('pokemon_show', {name: poke.name}) }}" style="text-decoration: none; color: inherit;">
-            <article style="padding-bottom: 5.5em;" data-pokemon-url="{{ poke.url }}">
+            <article style="padding-bottom: 5.5em;" {% if poke.url is defined %}data-pokemon-url="{{ poke.url }}"{% endif %}>
                 <aside>
                     <figure>
-                        <img class="pokemon-image" data-pokemon-name="{{ poke.name }}" src="" alt="{{ poke.name }}" style="min-height: 5em; background: rgba(0,0,0,0);">
+                        <img class="pokemon-image" data-pokemon-name="{{ poke.name }}" src="{{ poke.image|default('') }}" alt="{{ poke.name }}" style="min-height: 5em; background: rgba(0,0,0,0);">
                     </figure>
                 </aside>
 
