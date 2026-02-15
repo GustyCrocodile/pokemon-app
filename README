@@ -1,6 +1,23 @@
+Implemented:
+- Pokemon index with pagination
+- Pokemon search, by name and types
+- Detailed pokemon view (with very minimal info)
+- Favourite and unfavourite pokemon (in pokemon detailed view)
+- Favourite pokemon list page
+- Postgresql database
+- For styling used vanilla CSS Simple.css framework (https://simplecss.org/)
+- Docker compose setup
 
-sudo docker exec -it CHANGE_ME /bin/bash (something like pokemon_web-php)
+Setup:
 
+docker compose up
 
+(get inside pokemon_web-php container)
+
+docker exec -it CHANGE_ME /bin/bash 
+
+php bin/console doctrine:database:create
+
+php bin/console doctrine:migrations:migrate
 
 php bin/console app:cache-pokemon
